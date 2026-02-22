@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mein PLU Trainer</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin-top: 50px; }
+        input { padding: 10px; font-size: 18px; }
+        button { padding: 10px 20px; font-size: 18px; margin-top: 10px; }
+        .result { margin-top: 20px; font-size: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>🍎 Mein PLU Trainer</h1>
+
+<div id="question"></div>
+
+<input type="number" id="answer" placeholder="PLU eingeben"
+onkeydown="if(event.key === 'Enter') checkAnswer();"><br>
+<button onclick="checkAnswer()">Prüfen</button>
+
+<div class="result" id="result"></div>
+
+<script>
+const plus = [
+    
+    { name: "Avocado", plu: 621 },
+    { name: "Ananas ohne Krone", plu: 28},
+    { name: "Apfel Grün", plu: 15},
+    { name: "Apfel rot", plu: 47},
+    { name: "Bananen", plu: 55},
+    { name: "Birnen (Rot)", plu: 17},
+    { name: "Bio Zitronen", plu: 415},
+    { name: "Birnen lose", plu: 20},
+    { name: "Clementinen", plu: 39},
+    { name: "Fairtrade Bananen", plu: 48},
+    { name: "Fairtrade Avocado", plu: 640},
+    { name: "Fairtade Bio Bananen", plu: 45},
+    { name: "Galiamelone", plu: 11},
+    { name: "Grapefruit", plu: 608},
+    { name: "Grapefruit grün", plu: 51},
+    { name: "Granatapfel", plu: 622},
+    { name: "Honigpomelo Gelb", plu: 13},
+    { name: "Honigmelone", plu: 29},
+    { name: "Honigpomelo rot", plu: 18},
+    { name: "Kiwi lose", plu: 624},
+    { name: "Kiwi Gold", plu: 636},
+    { name: "Kokosnuss", plu: 628},
+    { name: "Mango", plu: 627},
+    { name: "Mandarinen", plu: 63},
+    { name: "Nashi Birnen", plu: 519},
+    { name: "Nektarinen", plu: 41},
+    { name: "Orangen", plu: 65},
+    { name: "Papaya", plu: 71},
+    { name: "Pink Lady", plu: 16},
+    { name: "Pflaumen dunkel", plu: 50},
+    { name: "Trauben grün", plu: 33},
+    { name: "Trauben dunkel", plu: 37},
+    { name: "Wassermelone Kernarm", plu: 78},
+    { name: "Wassermelone", plu: 79},
+    { name: "BAKE OFF", plu: 123},
+    { name: "Apfeltasche", plu: 572},
+    { name: "Bauernmildes", plu: 744},
+    { name: "Buttercrosaint", plu: 991},
+    { name: "Bioland Steinofenbrötchen", plu: 811},
+    { name: "Bauernbaguette", plu: 813},
+    { name: "Berliner", plu: 861},
+    { name: "Bioland Vollkornkrusti", plu: 715},
+    { name: "Börekstange mit Käse", plu: 859},
+    { name: "Ciabatta", plu: 763},
+    { name: "Doppelbrötchen", plu: 794},
+    { name: "Weizenbrötchen", plu: 918},
+    { name: "Flammkuchen", plu: 903},
+    { name: "Griechische Spinattasche", plu: 148},
+    { name: "Krönerglück", plu: 803},   
+    { name: "Kürbiskernbrötchen", plu: 989},
+    { name: "Käselaugenstange", plu: 934},
+    { name: "Laugenecke", plu: 688},
+    { name: "Laugenbrötchen", plu: 869},
+    { name: "Meisterbrot", plu: 987},
+    { name: "Nuss Nougat Crossaint", plu: 928, img: "f.webp"},
+    { name: "Pizzasnack Salami", plu: 816},
+    { name: "Roggenkruste", plu: 745},
+    { name: "Schokodounat", plu: 937},
+    { name: "Spritzkuchen", plu: 929},
+    { name: "Schinken Käse Crossaint", plu: 941},
+    { name: "Wienerle Crossaint", plu: 938},
+    { name: "Weltmeisterbrötchen", plu: 992},
+    { name: "GEMÜSE", plu: 123},
+    { name: "Knollensellerie", plu: 82},
+    { name: "Zucchini", plu: 93},
+    { name: "Spitzkohl", plu: 87},
+    { name: "Lauchzwiebeln", plu: 140},
+    { name: "Süßkartoffeln", plu: 25},
+    { name: "Süßkartoffeln Violett", plu: 74},
+    { name: "Aubergine", plu: 90},
+    { name: "Fenchel", plu: 83},
+    { name: "Bioland Möhren", plu: 64},
+    { name: "Staudensellerie", plu: 283},
+    { name: "Chinakohl", plu: 80},
+    { name: "Gurken", plu: 310},
+    { name: "Radischen", plu: 150},
+    { name: "Porree", plu: 222},
+    { name: "Bio Ingwer", plu: 38},
+    { name: "Cherrystrauchtomaten", plu: 99},
+    { name: "Artischocken", plu: 179},
+    { name: "Wirsing", plu: 85},
+    { name: "Kohlrabi", plu: 202},
+    { name: "Bio Speisekürbis Butternut", plu: 67},
+    { name: "Strauchtomaten", plu: 97},
+    { name: "Speisekürbis Muskat", plu: 35},
+    { name: "Möhren mit Grün", plu: 210},
+    { name: "Rotkohl", plu: 86},
+    { name: "Zwiebeln Weiß (Süß)", plu: 95},
+    { name: "Bioland Butternut", plu: 72},
+    { name: "Blumenkohl", plu: 200},
+    { name: "Bio Hokkido", plu: 27},
+    { name: "Rosatomaten", plu: 46}
+   
+
+];
+
+let current;
+
+function newQuestion() {
+    current = plus[Math.floor(Math.random() * plus.length)];
+    document.getElementById("question").innerHTML =
+        "Wie lautet die PLU für: <b>" + current.name + "</b>?";
+    document.getElementById("answer").value = "";
+    document.getElementById("result").innerHTML = "";
+}
+
+function checkAnswer() {
+    const input = document.getElementById("answer").value;
+    if (input == current.plu) {
+        document.getElementById("result").innerHTML = "✅ Richtig!";
+    } else {
+        document.getElementById("result").innerHTML =
+            "❌ Falsch! Richtige PLU: " + current.plu;
+    }
+    setTimeout(newQuestion, 1500);
+}
+
+newQuestion();
+</script>
+
+</body>
+</html>

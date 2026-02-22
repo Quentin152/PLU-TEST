@@ -33,13 +33,17 @@
 <script>
 // LOGIN-DATEN
 const correctUser = "Benutzer";
-const correctPass = "Ichliebedaisy123";
+// Passwort verschlüsselt in Base64
+const correctPass = "SWNobGllYmVkYWlzeTEyMw==";
 
 function login() {
     const user = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
 
-    if(user === correctUser && pass === correctPass) {
+    // Eingegebenes Passwort ebenfalls in Base64 umwandeln
+    const encodedPass = btoa(pass);
+
+    if(user === correctUser && encodedPass === correctPass) {
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("app").style.display = "block";
         newQuestion(); // Trainer direkt starten
@@ -98,7 +102,7 @@ const plus = [
     { name: "Weizenbrötchen", plu: 918},
     { name: "Flammkuchen", plu: 903},
     { name: "Griechische Spinattasche", plu: 148},
-    { name: "Körnerglückbrötchen", plu: 803},   
+    { name: "Körnerglück", plu: 803},   
     { name: "Kürbiskernbrötchen", plu: 989},
     { name: "Käselaugenstange", plu: 934},
     { name: "Laugenecke", plu: 688},
@@ -167,5 +171,4 @@ function checkAnswer() {
 </script>
 
 </body>
-
 </html>

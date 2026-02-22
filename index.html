@@ -1,59 +1,215 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mein PLU Trainer</title>
-    <style>
-        body { font-family: Arial; text-align: center; margin-top: 50px; }
-        input { padding: 10px; font-size: 18px; }
-        button { padding: 10px 20px; font-size: 18px; margin-top: 10px; }
-        .result { margin-top: 20px; font-size: 20px; }
-    </style>
+<title>Mein PLU Trainer</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family:'Montserrat', sans-serif;
+    background:#111;
+    color:white;
+    text-align:center;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+.card{
+    background:#000;
+    padding:40px;
+    width:280px;
+    border-radius:12px;
+    margin:auto;
+    border:1px solid #222;
+}
+
+.mode-selection{
+    display:flex;
+    gap:30px;
+    justify-content:center;
+    margin-bottom:40px;
+}
+
+.mode-card{
+    background:#000;
+    padding:40px;
+    width:250px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+    border:1px solid #222;
+}
+
+.mode-card:hover{
+    transform:scale(1.05);
+    background:#1a1a1a;
+}
+
+input{
+    padding:12px;
+    font-size:18px;
+    margin-top:15px;
+    border-radius:6px;
+    border:none;
+    width:200px;
+    text-align:center;
+}
+
+button{
+    padding:12px 25px;
+    margin-top:15px;
+    font-size:18px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:#2ecc71;
+    color:white;
+}
+
+button:hover{
+    background:#27ae60;
+}
+
+.result{
+    margin-top:20px;
+    font-size:20px;
+}
+
+.timer{
+    font-size:18px;
+    margin-bottom:10px;
+    color:#aaa;
+}
+
+.progress-text{
+    font-size:15px;
+    color:#aaa;
+    margin-bottom:8px;
+}
+
+.progress-container{
+    width:100%;
+    max-width:400px;
+    height:10px;
+    background:#222;
+    border-radius:20px;
+    margin:0 auto 20px auto;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2ecc71,#27ae60);
+    transition:width 0.4s ease;
+}
+
+.exit-btn{
+    background:#c0392b;
+}
+
+.exit-btn:hover{
+    background:#a93226;
+}
+
+.overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.overlay-box{
+    background:#000;
+    padding:40px;
+    border-radius:12px;
+    border:1px solid #222;
+}
+</style>
 </head>
+
 <body>
 
-<!-- LOGIN-SCREEN -->
-<div id="loginScreen">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Benutzername"><br><br>
-    <input type="password" id="password" placeholder="Passwort"><br><br>
+<div class="container">
+
+<div id="loginArea" class="card">
+    <h2>🔐 Login erforderlich</h2>
+    <input type="password" id="password" placeholder="Passwort">
+    <br>
     <button onclick="login()">Einloggen</button>
-    <div id="loginResult" style="color:red; margin-top:10px;"></div>
+    <div id="loginError" class="result" style="color:#e74c3c;"></div>
 </div>
 
-<!-- PLU-TRAINER (unsichtbar bis Login erfolgreich) -->
-<div id="app" style="display:none;">
-    <h1>🍎 Mein PLU Trainer</h1>
+<div id="mainArea" style="display:none;">
+
+<h1>🍎 Mein PLU Trainer</h1>
+<div id="infoText"></div>
+
+<div id="modeSelection" class="mode-selection">
+    <div class="mode-card" onclick="startTraining()">
+        <h2>Training</h2>
+        <p>Unendlich üben</p>
+    </div>
+
+    <div class="mode-card" onclick="startTest()">
+        <h2>Test</h2>
+        <p>Alles nur einmal + Zeit</p>
+    </div>
+</div>
+
+<div id="gameArea" style="display:none;">
+
+    <div id="progressWrapper" style="display:none;">
+        <div id="progressText" class="progress-text"></div>
+        <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="timer" class="timer"></div>
     <div id="question"></div>
+
     <input type="number" id="answer" placeholder="PLU eingeben"
-    onkeydown="if(event.key === 'Enter') checkAnswer();"><br>
+    onkeydown="if(event.key==='Enter') checkAnswer();">
+
+    <br>
     <button onclick="checkAnswer()">Prüfen</button>
-    <div class="result" id="result"></div>
+    <br>
+    <button class="exit-btn" onclick="confirmExit()">Modus verlassen</button>
+
+    <div id="result" class="result"></div>
+</div>
+
+</div>
 </div>
 
 <script>
-// LOGIN-DATEN
-const correctUser = "Benutzer";
-// Passwort verschlüsselt in Base64
+
 const correctPass = "SWNobGllYmVkYWlzeTEyMw==";
 
-function login() {
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
+function login(){
+    const input = document.getElementById("password").value;
+    const encoded = btoa(input);
 
-    // Eingegebenes Passwort ebenfalls in Base64 umwandeln
-    const encodedPass = btoa(pass);
-
-    if(user === correctUser && encodedPass === correctPass) {
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("app").style.display = "block";
-        newQuestion(); // Trainer direkt starten
-        document.getElementById("answer").focus();
-    } else {
-        document.getElementById("loginResult").innerHTML = "❌ Falscher Benutzername oder Passwort";
+    if(encoded === correctPass){
+        document.getElementById("loginArea").style.display="none";
+        document.getElementById("mainArea").style.display="block";
+    }else{
+        document.getElementById("loginError").innerHTML="❌ Falsches Passwort";
     }
 }
 
-// PLU-LISTE
 const plus = [
     { name: "Avocado", plu: 621 },
     { name: "Ananas ohne Krone", plu: 28},
@@ -102,7 +258,7 @@ const plus = [
     { name: "Weizenbrötchen", plu: 918},
     { name: "Flammkuchen", plu: 903},
     { name: "Griechische Spinattasche", plu: 148},
-    { name: "Körnerglück", plu: 803},   
+    { name: "Körnerglückbrötchen", plu: 803},   
     { name: "Kürbiskernbrötchen", plu: 989},
     { name: "Käselaugenstange", plu: 934},
     { name: "Laugenecke", plu: 688},
@@ -144,30 +300,158 @@ const plus = [
     { name: "Bioland Butternut", plu: 72},
     { name: "Blumenkohl", plu: 200},
     { name: "Bio Hokkido", plu: 27},
-    { name: "Rosatomaten", plu: 46}
+    { name: "Rosatomaten", plu: 46},
+    { name: "Pepsi/Schwipschwapp", plu: 706},
+    { name: "Coca Cola", plu: 770},
+    { name: "Softdrinks Dosen", plu: 728},
+    { name: "Esskastanien", plu: 56},
+    { name: "Walnüsse", plu: 57},
+    { name: "Laugenbräzel", plu: 512},
+
+
 ];
 
+let mode="";
 let current;
+let shuffled=[];
+let index=0;
+let score=0;
+let startTime;
+let timerInterval;
+let lastTraining=null;
 
-function newQuestion() {
-    current = plus[Math.floor(Math.random() * plus.length)];
-    document.getElementById("question").innerHTML =
-        "Wie lautet die PLU für: <b>" + current.name + "</b>?";
-    document.getElementById("answer").value = "";
-    document.getElementById("result").innerHTML = "";
+function startTraining(){
+    mode="training";
+    hideMenu();
+    document.getElementById("progressWrapper").style.display="none";
+    document.getElementById("timer").innerHTML="";
+    newTrainingQuestion();
+}
+
+function newTrainingQuestion(){
+    do{
+        current = plus[Math.floor(Math.random()*plus.length)];
+    }while(current === lastTraining);
+
+    lastTraining=current;
+    showQuestion();
+}
+
+function startTest(){
+    mode="test";
+    hideMenu();
+
+    document.getElementById("progressWrapper").style.display="block";
+
+    shuffled=[...plus];
+    shuffled.sort(()=>Math.random()-0.5);
+    index=0;
+    score=0;
+
+    startTime=Date.now();
+    timerInterval=setInterval(updateTimer,1000);
+
+    nextTestQuestion();
+}
+
+function updateTimer(){
+    const seconds=Math.floor((Date.now()-startTime)/1000);
+    document.getElementById("timer").innerHTML="⏱ Zeit: "+seconds+" Sekunden";
+}
+
+function nextTestQuestion(){
+
+    if(index>=shuffled.length){
+        clearInterval(timerInterval);
+
+        const totalTime=Math.floor((Date.now()-startTime)/1000);
+        const percent=((score/shuffled.length)*100).toFixed(1);
+
+        document.getElementById("gameArea").innerHTML=
+        `<h2>Test beendet!</h2>
+         <p>${score} von ${shuffled.length} richtig</p>
+         <p>${percent}%</p>
+         <p>⏱ ${totalTime} Sekunden</p>
+         <button onclick="resetToMenu()">Zurück zum Menü</button>`;
+        return;
+    }
+
+    current=shuffled[index];
+
+    const progressPercent=(index/shuffled.length)*100;
+
+    document.getElementById("progressText").innerHTML=
+    "Frage "+(index+1)+" von "+shuffled.length;
+
+    document.getElementById("progressBar").style.width=
+    progressPercent+"%";
+
+    showQuestion();
+}
+
+function showQuestion(){
+    document.getElementById("question").innerHTML=
+    "Wie lautet die PLU für:<br><br><b>"+current.name+"</b>";
+    document.getElementById("answer").value="";
+    document.getElementById("result").innerHTML="";
     document.getElementById("answer").focus();
 }
 
-function checkAnswer() {
-    const input = document.getElementById("answer").value;
-    if (input == current.plu) {
-        document.getElementById("result").innerHTML = "✅ Richtig!";
-    } else {
-        document.getElementById("result").innerHTML =
-            "❌ Falsch! Richtige PLU: " + current.plu;
+function checkAnswer(){
+    const input=document.getElementById("answer").value;
+
+    if(input==current.plu){
+        document.getElementById("result").innerHTML="✅ Richtig!";
+        if(mode==="test") score++;
+    }else{
+        document.getElementById("result").innerHTML=
+        "❌ Falsch! Richtige PLU: "+current.plu;
     }
-    setTimeout(newQuestion, 1500);
+
+    if(mode==="training"){
+        setTimeout(newTrainingQuestion,1200);
+    }else{
+        index++;
+        setTimeout(nextTestQuestion,1200);
+    }
 }
+
+function hideMenu(){
+    document.getElementById("modeSelection").style.display="none";
+    document.getElementById("gameArea").style.display="block";
+    document.getElementById("infoText").innerHTML="";
+}
+
+function resetToMenu(){
+    clearInterval(timerInterval);
+    location.reload(); 
+}
+
+function confirmExit(){
+    const overlay=document.createElement("div");
+    overlay.className="overlay";
+    overlay.id="overlayConfirm";
+
+    overlay.innerHTML=
+    `<div class="overlay-box">
+        <h3>Modus wirklich verlassen?</h3>
+        <p>Du kannst ihn jederzeit neu starten.</p>
+        <button onclick="exitMode()">Ja, verlassen</button>
+        <button onclick="closeOverlay()" style="background:#555;">Abbrechen</button>
+     </div>`;
+
+    document.body.appendChild(overlay);
+}
+
+function closeOverlay(){
+    document.getElementById("overlayConfirm").remove();
+}
+
+function exitMode(){
+    closeOverlay();
+    resetToMenu();
+}
+
 </script>
 
 </body>
